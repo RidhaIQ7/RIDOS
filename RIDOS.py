@@ -75,8 +75,9 @@ def check_server(ip, port):
         return False
 
 while True:
+    syms = random.choice(("[+]", "[#]", "-", "$" "[*]"))
     if check_server(ip, port):
     	
-        print("\033[32mAttacking server")
+        print(syms + "\033[32mAttacking server")
     else:
-        print("\033[31mServet Closed connection")
+        print(syms + "\033[31mServet Closed connection")
